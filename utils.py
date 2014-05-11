@@ -87,122 +87,43 @@ def rasterize(shape_input_path, raster_output_path, pixel_size=25):
     if err != 0:
         raise Exception("error rasterizing layer: %s" % err)
 
-# image clipping
-def clip(src_path, sub_img_path, origin, size):
-
-    image = gdal.Open(src_path)
-    band = image.GetRasterBand(1)
-    [upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size] = image.GetGeoTransform()
-
-    # raster size in pixel
-    cols = image.RasterXSize    # width or band.XSize
-    rows = image.RasterYSize    # height or band.YSize
-
-    # new origin in pixel
-    xo, yo = origin
-    width, height = size
-
-    sub_image_array = band.ReadAsArray(xo, yo, width, height)
-
-    ## save
-    driver = gdal.GetDriverByName('GTiff')
-    dst = driver.Create(
-                  sub_img_path,
-                  width,                    # in pixel
-                  height,                   # in pixel
-                  1,                        # number of bands
-                  gdal.GDT_Float32)         # data type
-
-    # set transform and projection
-    # new origin
-    new_ox = upper_left_x + xo * x_size
-    new_oy = upper_left_y + yo * y_size
-
-    dst.SetGeoTransform([new_ox, x_size, x_rotation, new_oy, y_rotation, y_size])
-    dst.SetProjection( image.GetProjection() )
-
-    # write on file
-    bandOut = dst.GetRasterBand(1)
-    bandOut.WriteArray(sub_image_array)
-
-
-def clip_from_extent(src_path, sub_img_path, extent):
-    #import pdb; pdb.set_trace()
-
-    src_img = gdal.Open(src_path)
-    src_band = src_img.GetRasterBand(1)
-    [src_ulx, src_x_size, src_x_rotation, src_uly, src_y_rotation, src_y_size] = src_img.GetGeoTransform()
-
-    new_ulx, new_uly, new_lrx, new_lry = extent
-
-    xo = int(round((new_ulx - src_ulx) / src_x_size))
-    yo = int(round((new_uly - src_uly) / src_y_size))
-
-    print 'new:', xo, yo
-
-    #src_width = src_img.RasterXSize * src_x_size
-    #src_height = src_img.RasterYSize * src_y_size
-
-    new_width = int(round((new_lrx - new_ulx) / src_x_size))
-    new_height = int(round((new_lry - new_uly) / src_y_size))
-
-    print "size:",  new_width, new_height
-
-    sub_image_array = src_band.ReadAsArray(xo, yo, new_width, new_height)
-
-    # save...
-    driver = gdal.GetDriverByName('GTiff')
-    dst = driver.Create(
-                  sub_img_path,
-                  new_width,                    # in pixel
-                  new_height,                   # in pixel
-                  1,                        # number of bands
-                  gdal.GDT_Float32)         # data type
-
-    dst.SetGeoTransform([new_ulx, src_x_size, src_x_rotation, new_uly, src_y_rotation, src_y_size])
-    dst.SetProjection( src_img.GetProjection() )
-
-    # write on file
-    bandOut = dst.GetRasterBand(1)
-    bandOut.WriteArray(sub_image_array)
-
-    # pezzo giusto ma in posizione leggermente errata
-    # provato a sistemare la conversione con int(round())
-    # viene comunque un pochino spostata
-
-
+# Image clipping
 def clip_from_extent_as_array(src_path, extent):
-    # as clip_from_extent but return only the array
-
+    # Clip the raster image and return the matrix as numpy array
+    # FIXME => review the convertions to make ReadAsArray work correctly
+    
     src_img = gdal.Open(src_path)
     src_band = src_img.GetRasterBand(1)
-    [src_ulx, src_x_size, src_x_rotation, src_uly, src_y_rotation, src_y_size] = src_img.GetGeoTransform()
+    [src_ulx, src_x_size, src_x_rotation, src_uly, src_y_rotation, src_y_size] = src_img.GetGeoTransform()    
 
     new_ulx, new_uly, new_lrx, new_lry = extent
 
-    xo = int(round((new_ulx - src_ulx) / src_x_size))
-    yo = int(round((new_uly - src_uly) / src_y_size))
+    # convert to matrix coordinates
+    xo = abs(int(round((new_ulx - src_ulx) / src_x_size)))    # cols origin
+    yo = abs(int(round((new_uly - src_uly) / src_y_size)))    # rows origin
 
-    new_width = int(round((new_lrx - new_ulx) / src_x_size))
-    new_height = int(round((new_lry - new_uly) / src_y_size))
+    new_width = abs(int(round((new_lrx - new_ulx) / src_x_size)))    # number of cols
+    new_height = abs(int(round((new_lry - new_uly) / src_y_size)))   # number of rows
 
+    # logs
     print 'clip:', src_path
-    print '  ', xo, yo, new_width, new_height
+    print "ulx:%s x_size:%s x_rotation:%s uly:%s y_rotation:%s y_size:%s"%(src_ulx, src_x_size, src_x_rotation, src_uly, src_y_rotation, src_y_size)
+    print 'o: %s,%s size: %s,%s  '%(xo, yo, new_width, new_height)
+    
     return src_band.ReadAsArray(xo, yo, new_width, new_height)
 
 
 def convert_parameter(extent):
-    # The value is a string in the form "xmin, xmax, ymin, ymax"
+    # The extent returned from 'processing' widget is a string in the form "xmin, xmax, ymin, ymax"
+    # shape_extent = ulx, uly, lrx, lry
+    # ul: upper left
+    # lr: lower right
     xmin, xmax, ymin, ymax = [float(v) for v in extent.split(',')]
-    return [xmin, ymax, xmax, ymin]
+    return [xmin, ymin, xmax, ymax]
 
 
 if __name__ == '__main__':
     import sys
-
-    #clip(sys.argv[1], sys.argv[2], (10,10), (20,20))
-    # python utils.py /home/axa/Projects/languages/python/gdal/to_raster.tiff /tmp/sub_img.tiff
-    clip_from_extent(
-        sys.argv[1],
-        sys.argv[2],
-        [373880.161999, 5033158.31312, 374757.398705, 5032431.85147])
+    print clip_from_extent_as_array(
+              sys.argv[1],
+              [373880.161999, 5033158.31312, 374757.398705, 5032431.85147])

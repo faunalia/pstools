@@ -3,10 +3,16 @@ Introduction
 
   The package add the following algorithms to 'processing' (was 'sexante'):
 
-  - Point Scatterers Speed East-West (ex PS VelEo)
+  - Point Scatterers East-West Speed  (ex PS VelEo)
     
     Model for the computation of the horizontal speed of PS in 
     respect of the satellite.
+
+  - Point Scatterers Horizontal Speed (ex PS Velh)
+
+    Model for the computation of the horizontal speed of PS in
+    respect of the satellite. (?)
+
     
   - ...
 

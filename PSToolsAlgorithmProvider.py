@@ -4,8 +4,8 @@
 ***************************************************************************
     PSToolsAlgorithmProvider.py
     ---------------------
-    Date                 : October 2013
-    Copyright            : (C) 2013 by Riccardo Lemmi
+    Date                 : May 2014
+    Copyright            : (C) 2014 by Riccardo Lemmi
     Email                : riccardo at reflab dot com
 ***************************************************************************
 *                                                                         *
@@ -17,8 +17,8 @@
 ***************************************************************************
 """
 __author__ = 'Riccardo Lemmi'
-__date__ = 'October 2013'
-__copyright__ = '(C) 2013, Riccardo Lemmi'
+__date__ = 'May 2014'
+__copyright__ = '(C) 2014, Riccardo Lemmi'
 # This will get replaced with a git SHA1 when you do a git archive
 __revision__ = '$Format:%H$'
 
@@ -30,6 +30,7 @@ from processing.algs.AddTableField import AddTableField
 
 #
 from PSEWSpeed import PSEWSpeedGeoAlg
+from PSHSpeed import PSHSpeedGeoAlg
 
 class PSToolsAlgorithmProvider(AlgorithmProvider):
 
@@ -37,6 +38,7 @@ class PSToolsAlgorithmProvider(AlgorithmProvider):
         AlgorithmProvider.__init__(self)
         self.alglist = [
             PSEWSpeedGeoAlg(),
+            PSHSpeedGeoAlg(),
         ]
 
     def initializeSettings(self):

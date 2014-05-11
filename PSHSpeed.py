@@ -37,8 +37,8 @@ from processing.parameters.ParameterNumber import ParameterNumber
 from processing.parameters.ParameterExtent import ParameterExtent
 
 
-class PSEWSpeedAlg:
-    # Computation of the horizontal speed of PS East-West 
+class PSHSpeedAlg:
+    # Computation of the horizontal speed
     
     def __init__(
             self,
@@ -115,9 +115,9 @@ class PSEWSpeedAlg:
         CosDir3_array = self.cd_e_asc * numpy.ones((self.rows, self.cols), dtype=numpy.byte)
         CosDir4_array = self.cd_h_asc * numpy.ones((self.rows, self.cols), dtype=numpy.byte)
 
-        # "(([ResDisc] div [CosDir2])  - ([ResAsc] div ([CosDir4])) ) div (([CosDir1] div [CosDir2]) - ([CosDir3] div ([CosDir4])))"
-        num = ((clipped_desc_array / CosDir2_array) - (clipped_asc_array / CosDir4_array))
-        den = ((CosDir1_array / CosDir2_array) - (CosDir3_array / CosDir4_array))           # for den == [0...] -> wrong image
+        # "(([ResDisc] div [CosDir1])  - ([ResAsc] div ([CosDir3])) ) div (([CosDir2] div [CosDir1]) - ([CosDir4] div ([CosDir3])))"
+        num = ((clipped_desc_array / CosDir1_array) - (clipped_asc_array / CosDir3_array))
+        den = ((CosDir2_array / CosDir1_array) - (CosDir4_array / CosDir3_array))           # for den == [0...] -> wrong image
         ew_speed_array = num / den
               
         self._save(ew_speed_array)
@@ -137,8 +137,8 @@ class PSEWSpeedAlg:
         pass
 
 
-class PSEWSpeedGeoAlg(GeoAlgorithm):
-    """ was PS_VelEo.py """
+class PSHSpeedGeoAlg(GeoAlgorithm):
+    """ was PS_Velh.py """
     
     ASC_INPUT = "ASC_INPUT"                 # Ascending -> SHP
     DESC_INPUT = "DISC_INPUT"               # Descending -> SHP
@@ -154,60 +154,60 @@ class PSEWSpeedGeoAlg(GeoAlgorithm):
     OUTPUT_PATH = "OUTPUT_PATH"           # Raster
  
     def defineCharacteristics(self):
-        self.name = "Model to compute East-West horizontal component of speed for PS points"
+        self.name = "Model to compute Horizontal component of speed for PS points"
         self.group = "[pstools]"
         
-        self.addParameter(ParameterVector(PSEWSpeedGeoAlg.ASC_INPUT, 
+        self.addParameter(ParameterVector(PSHSpeedGeoAlg.ASC_INPUT,
                                           "Ascending Vector"))   
-        self.addParameter(ParameterVector(PSEWSpeedGeoAlg.DESC_INPUT, 
+        self.addParameter(ParameterVector(PSHSpeedGeoAlg.DESC_INPUT,
                                           "Descending Vector"))  
         
-        self.addParameter(ParameterExtent(PSEWSpeedGeoAlg.EXTENT, 
+        self.addParameter(ParameterExtent(PSHSpeedGeoAlg.EXTENT,
                                              "Extent"))     
-        self.addParameter(ParameterNumber(PSEWSpeedGeoAlg.POINT_SIZE, 
+        self.addParameter(ParameterNumber(PSHSpeedGeoAlg.POINT_SIZE,
                                           "Point Size", 
                                           minValue=1,
                                           default=25))
         
-        self.addParameter(ParameterNumber(PSEWSpeedGeoAlg.COSENO_DIRETTORE_E_ASCENDENTE, 
+        self.addParameter(ParameterNumber(PSHSpeedGeoAlg.COSENO_DIRETTORE_E_ASCENDENTE,
                                           "Cosine Director East Ascending",
                                           minValue=0.0, 
                                           maxValue=1.0,
                                           default=0.6))
-        self.addParameter(ParameterNumber(PSEWSpeedGeoAlg.COSENO_DIRETTORE_H_ASCENDENTE, 
+        self.addParameter(ParameterNumber(PSHSpeedGeoAlg.COSENO_DIRETTORE_H_ASCENDENTE,
                                           "Cosine Director Horizontal Ascending", 
                                           minValue=0.0, 
                                           maxValue=1.0,
                                           default=0.5))
-        self.addParameter(ParameterNumber(PSEWSpeedGeoAlg.COSENO_DIRETTORE_E_DISCENDENTE, 
+        self.addParameter(ParameterNumber(PSHSpeedGeoAlg.COSENO_DIRETTORE_E_DISCENDENTE,
                                           "Cosine Director East Descending", 
                                           minValue=0.0, 
                                           maxValue=1.0,
                                           default=0.8))
-        self.addParameter(ParameterNumber(PSEWSpeedGeoAlg.COSENO_DIRETTORE_H_DISCENDENTE,
+        self.addParameter(ParameterNumber(PSHSpeedGeoAlg.COSENO_DIRETTORE_H_DISCENDENTE,
                                           "Cosine Director Horizontal Descending",
                                           minValue=0.0, 
                                           maxValue=1.0,
                                           default=0.5))
         
 
-        self.addOutput(OutputRaster(PSEWSpeedGeoAlg.OUTPUT_PATH, 
-                                    "East-West Speed Image"))
+        self.addOutput(OutputRaster(PSHSpeedGeoAlg.OUTPUT_PATH,
+                                    "Horizontal Speed Image"))
 
     def processAlgorithm(self, progress):
-        asc_input_path = str(self.getParameterValue(PSEWSpeedGeoAlg.ASC_INPUT))
-        desc_input_path = str(self.getParameterValue(PSEWSpeedGeoAlg.DESC_INPUT))
-        extent = utils.convert_parameter(self.getParameterValue(PSEWSpeedGeoAlg.EXTENT))
-        point_size = self.getParameterValue(PSEWSpeedGeoAlg.POINT_SIZE)
-        cd_e_asc = self.getParameterValue(PSEWSpeedGeoAlg.COSENO_DIRETTORE_E_ASCENDENTE)
-        cd_h_asc = self.getParameterValue(PSEWSpeedGeoAlg.COSENO_DIRETTORE_H_ASCENDENTE)
-        cd_e_desc = self.getParameterValue(PSEWSpeedGeoAlg.COSENO_DIRETTORE_E_DISCENDENTE)
-        cd_h_desc = self.getParameterValue(PSEWSpeedGeoAlg.COSENO_DIRETTORE_H_DISCENDENTE)
+        asc_input_path = str(self.getParameterValue(PSHSpeedGeoAlg.ASC_INPUT))
+        desc_input_path = str(self.getParameterValue(PSHSpeedGeoAlg.DESC_INPUT))
+        extent = utils.convert_parameter(self.getParameterValue(PSHSpeedGeoAlg.EXTENT))
+        point_size = self.getParameterValue(PSHSpeedGeoAlg.POINT_SIZE)
+        cd_e_asc = self.getParameterValue(PSHSpeedGeoAlg.COSENO_DIRETTORE_E_ASCENDENTE)
+        cd_h_asc = self.getParameterValue(PSHSpeedGeoAlg.COSENO_DIRETTORE_H_ASCENDENTE)
+        cd_e_desc = self.getParameterValue(PSHSpeedGeoAlg.COSENO_DIRETTORE_E_DISCENDENTE)
+        cd_h_desc = self.getParameterValue(PSHSpeedGeoAlg.COSENO_DIRETTORE_H_DISCENDENTE)
         
         #...
-        output_path = str(self.getOutputValue(PSEWSpeedGeoAlg.OUTPUT_PATH))
+        output_path = str(self.getOutputValue(PSHSpeedGeoAlg.OUTPUT_PATH))
         
-        with PSEWSpeedAlg(
+        with PSHSpeedAlg(
                 asc_input_path, 
                 desc_input_path,
                 extent,

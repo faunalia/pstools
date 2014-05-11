@@ -70,7 +70,7 @@ class PSToolsProviderPlugin:
 
     def initGui(self):
         Processing.addProvider(self.provider, updateList=True)
-        #Processing.updateAlgsList()
+        Processing.updateAlgsList()
         
     def unload(self):
         Processing.removeProvider(self.provider)
