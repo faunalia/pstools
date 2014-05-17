@@ -13,6 +13,10 @@ Introduction
     Model for the computation of the horizontal speed of PS in
     respect of the satellite. (?)
 
+  - Point Scatterers CR Index
+
+    Model for the computation of the CR Index of satellite visibility
+
     
   - ...
 

@@ -31,6 +31,7 @@ from processing.algs.AddTableField import AddTableField
 #
 from PSEWSpeed import PSEWSpeedGeoAlg
 from PSHSpeed import PSHSpeedGeoAlg
+#from PSCRIndex import PSCRIndexGeoAlg
 
 class PSToolsAlgorithmProvider(AlgorithmProvider):
 
@@ -39,6 +40,7 @@ class PSToolsAlgorithmProvider(AlgorithmProvider):
         self.alglist = [
             PSEWSpeedGeoAlg(),
             PSHSpeedGeoAlg(),
+            #PSCRIndexGeoAlg(),
         ]
 
     def initializeSettings(self):
