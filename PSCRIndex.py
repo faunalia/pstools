@@ -94,9 +94,9 @@ class PSCRIndexAlg:
     def _save(self, array):
         # create the output image
         driver = gdal.GetDriverByName('GTiff')
-        print "out path:", self.output_path
+        print "out path:", self.cr_index_path
         dst = driver.Create(
-              self.output_path,
+              self.cr_index_path,
               self.cols,
               self.rows,
               1,                        # number of bands
@@ -110,7 +110,7 @@ class PSCRIndexAlg:
         new_width = int(round((new_lrx - new_ulx) / src_x_size))
         new_height = int(round((new_lry - new_uly) / src_y_size))
         dst.SetGeoTransform([new_ulx, src_x_size, 0, new_uly, 0, src_y_size])
-        dst.SetProjection( gdal.Open("/tmp/ascending_raster.tiff").GetProjection() )
+        #dst.SetProjection( gdal.Open("/tmp/ascending_raster.tiff").GetProjection() )
         #
 
         self.bandOut = dst.GetRasterBand(1)
@@ -128,14 +128,6 @@ class PSCRIndexAlg:
         return  self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # set the geotransform and projection on the output
-        #self.imageOut.SetGeoTransform(self.imageIn.GetGeoTransform())
-        #self.imageOut.SetProjection(self.imageIn.GetProjection())
-
-        ## build pyramids for the output
-        #gdal.SetConfigOption('HFA_USE_RRD', 'YES')
-        #self.imageOut.BuildOverviews(overviewlist=[2,4,8,16])
-        # del dst???
         pass
 
 
@@ -171,27 +163,27 @@ class PSCRIndexGeoAlg(GeoAlgorithm):
         self.addParameter(ParameterVector(PSCRIndexGeoAlg.LAND_USE_INDEX_INPUT,
                                           "Quality Index of land use"))
                                           
-        self.addParameter(ParameterNumber(PSEWSpeedGeoAlg.WEST_ANGLE),
+        self.addParameter(ParameterNumber(PSCRIndexGeoAlg.WEST_ANGLE),
                                           "West Angle",
                                           minValue=0.0,
                                           maxValue=90.0, #180?
                                           default=0.0))
-        self.addParameter(ParameterNumber(PSEWSpeedGeoAlg.INCIDENCE_ANGLE,
+        self.addParameter(ParameterNumber(PSCRIndexGeoAlg.INCIDENCE_ANGLE,
                                           "Incidence Angle",
                                           minValue=0.0,
                                           maxValue=90.0, #180?
                                           default=0.0))
-        self.addParameter(ParameterNumber(PSEWSpeedGeoAlg.CELL_SIZE,
+        self.addParameter(ParameterNumber(PSCRIndexGeoAlg.CELL_SIZE,
                                           "Cell Size",
                                           minValue=1,
                                           default=25))
 
 
-        self.addOutput(OutputRaster(PSEWSpeedGeoAlg.CR_INDEX),
+        self.addOutput(OutputRaster(PSCRIndexGeoAlg.CR_INDEX),
                                     "CR Index Image"))
 
     def processAlgorithm(self, progress):
-        extent = utils.convert_parameter(self.getParameterValue(PSEWSpeedGeoAlg.EXTENT))
+        extent = utils.convert_parameter(self.getParameterValue(PSCRIndexGeoAlg.EXTENT))
 
         aspect_input_path = str(self.getParameterValue(PSCRIndexGeoAlg.ASPECT_INPUT))
         slope_input_path = str(self.getParameterValue(PSCRIndexGeoAlg.SLOPE_INPUT))
