@@ -17,6 +17,9 @@ Introduction
 
     Model for the computation of the CR Index of satellite visibility
 
+  - Point Scatterers R Index
+
+    Model for the computation of the R Index of satellite visibility
     
   - ...
 
