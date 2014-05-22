@@ -41,6 +41,7 @@ class PSToolsAlgorithmProvider(AlgorithmProvider):
             PSEWSpeedGeoAlg(),
             PSHSpeedGeoAlg(),
             #PSCRIndexGeoAlg(),
+            #PSRIndexGeoAlg(),
         ]
 
     def initializeSettings(self):
