@@ -54,8 +54,10 @@ class PSEWSpeedAlg:
               
         self.asc_input_path = asc_input_path
         self.desc_input_path = desc_input_path
+
         self.extent = extent
         self.point_size = point_size
+        
         self.cd_e_asc = cd_e_asc
         self.cd_h_asc = cd_h_asc
         self.cd_e_desc = cd_e_desc
@@ -66,7 +68,6 @@ class PSEWSpeedAlg:
     def _save(self, array):
         # create the output image
         driver = gdal.GetDriverByName('GTiff')
-        print "out path:", self.output_path
         dst = driver.Create(
               self.output_path,
               self.cols,                    
@@ -75,18 +76,13 @@ class PSEWSpeedAlg:
               gdal.GDT_Float32)         # data type
 
         # set geotrasform and projection
-        #   to refactor
-        src_x_size = self.point_size
-        src_y_size = self.point_size
         new_ulx, new_uly, new_lrx, new_lry = self.extent
-        new_width = int(round((new_lrx - new_ulx) / src_x_size))
-        new_height = int(round((new_lry - new_uly) / src_y_size))
-        dst.SetGeoTransform([new_ulx, src_x_size, 0, new_uly, 0, src_y_size])
-        dst.SetProjection( gdal.Open("/tmp/ascending_raster.tiff").GetProjection() )
+        dst.SetGeoTransform([new_ulx, self.point_size, 0, new_uly, self.point_size])
+        #dst.SetProjection( gdal.Open("/tmp/ascending_raster.tiff").GetProjection() )
         #
         
         self.bandOut = dst.GetRasterBand(1)
-        #bandOut.SetNoDataValue(-3.4e+38)
+        self.bandOut.SetNoDataValue(-3.4e+38)
         #bandOut.SetStatistics(
         #          self.min,
         #          self.max,
