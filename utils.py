@@ -1,10 +1,13 @@
 # utils
 
-import os
+import sys, os
+import struct
 import random
+from math import sin, cos
 
 from osgeo import gdal, ogr
 from gdalconst import *
+
 
 import numpy
 
@@ -112,7 +115,15 @@ def clip_from_extent_as_array(src_path, extent):
     
     return src_band.ReadAsArray(xo, yo, new_width, new_height)
 
+    
+def extent_size(extent, cell_size):
+    xmin, ymin, xmax, ymax = extent
+    return (
+       abs(int(round((xmax - xmin) / cell_size))),
+       abs(int(round((ymax - ymin) / cell_size)))
+    )
 
+    
 def convert_parameter(extent):
     # The extent returned from 'processing' widget is a string in the form "xmin, xmax, ymin, ymax"
     # shape_extent = ulx, uly, lrx, lry
@@ -122,6 +133,114 @@ def convert_parameter(extent):
     return [xmin, ymin, xmax, ymax]
 
 
+# Vectorial functions
+def addFieldDefn(layer, name, ftype):
+    # add field to a layer
+    # name: max 10 chr
+    field_defn = ogr.FieldDefn(name, ftype)
+    field_defn.SetWidth(32)
+    field_defn.SetPrecision(12)
+
+    if layer.CreateField ( field_defn ) != 0:
+        raise Exception("Creating Name field failed.")
+
+        
+def addFieldManagement(ds, fname, ftype):
+    # add field to layer 0
+    layer = ds.GetLayer(0)
+    addFieldDefn(layer, fname, ftype)
+
+
+def calculateFieldManagement(ds, fname, fvalue):
+    # set a constant value to a field for each point in layer 0
+    layer = ds.GetLayer(0)
+    layer.SetNextByIndex(0) # reset index
+    for feat in layer:
+        #print 'feat:', fname, fvalue
+        feat.SetField(fname, fvalue)
+        layer.SetFeature(feat)         # update!!!
+
+
+        
+def ApplyGeoTransform(inx, iny, gt):
+    ''' Apply a geotransform
+        @param  inx:       Input x coordinate (double)
+        @param  iny:       Input y coordinate (double)
+        @param  gt:        Input geotransform (six doubles)
+
+        @return: outx,outy Output coordinates (two doubles)
+    '''
+    outx = int(gt[0] + inx*gt[1] + iny*gt[2])
+    outy = int(gt[3] + inx*gt[4] + iny*gt[5])
+    return (outx, outy)
+
+    
+def setFieldFromRasterPoints(src_ds, ds, fieldname):
+    # copy value from a raster image to relative point in a vectorial image
+    # src_ds: gdal raster obj
+    # ds: ogr shp image
+
+    gt = src_ds.GetGeoTransform()
+    rb = src_ds.GetRasterBand(1)
+
+    layer = ds.GetLayer(0)
+    layer.SetNextByIndex(0)  # reset index
+
+    #
+    for feat in layer:
+        geom = feat.GetGeometryRef()
+        mx,my = geom.GetX(), geom.GetY()  #coord in map units
+
+        # no rotation
+        px = int((mx - gt[0]) / gt[1]) #x pixel
+        py = int((my - gt[3]) / gt[5]) #y pixel
+        p1x, p1y = ApplyGeoTransform(mx, my, gt)
+
+        # source value is float
+        structval = rb.ReadRaster(px,py,1,1,buf_type=gdal.GDT_Float32)
+        val = struct.unpack('f' , structval)[0]
+
+        # set fieldname and value
+        addFieldManagement(ds, fieldname, ogr.OFTReal)
+        calculateFieldManagement(ds, fieldname, val)
+
+
+def evaluate(formula, values):
+    # in formula names are [name]
+    # values is a dictionary name:values
+    
+    for name, value in values.items():
+        formula = formula.replace('[%s]'%name, '%.5f'%float(value))
+
+    #print formula
+    return eval(formula) # this is a little dangerous
+
+
+def real_CalculateField_management(ds, dst_feat_name, formula, feat_names):
+    """
+      Eval the formula for each point in the layer 0 of a raster image
+      @param ds              : raster image
+      @param dst_feat_name   : destination field name
+      @param formula         : math formula, params as [field_name]
+      @param feat_names      : field names present in the layer
+    """
+
+    layer = ds.GetLayer(0)
+    layer.SetNextByIndex(0) # reset index
+
+    values = {}
+
+    for feat in layer:
+
+        for name in feat_names:
+            values[name] = feat.GetField(name)
+
+        result = evaluate(formula, values)
+
+        feat.SetField(dst_feat_name, result)
+        layer.SetFeature(feat)  # update!
+
+    
 if __name__ == '__main__':
     import sys
     print clip_from_extent_as_array(

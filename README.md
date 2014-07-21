@@ -21,7 +21,11 @@ Introduction
 
     Model for the computation of the R Index of satellite visibility
     
-  - ...
+  - Point Scatterers Projection Tools
+
+    Model to compute speed projection for PS points
+
+  - Point Scatterers Projection Tools DDIR
 
 Install
 -------
