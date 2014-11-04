@@ -26,7 +26,6 @@ import os
 from PyQt4 import QtGui
 
 from processing.core.AlgorithmProvider import AlgorithmProvider
-from processing.algs.AddTableField import AddTableField
 
 #
 from PSEWSpeed import PSEWSpeedGeoAlg
