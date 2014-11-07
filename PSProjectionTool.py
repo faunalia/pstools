@@ -30,12 +30,12 @@ import numpy
 import utils
 
 from processing.core.GeoAlgorithm import GeoAlgorithm
-from processing.outputs.OutputVector import OutputVector
+from processing.core.outputs import OutputVector
 
 
-from processing.parameters.ParameterRaster import ParameterRaster
-from processing.parameters.ParameterVector import ParameterVector
-from processing.parameters.ParameterNumber import ParameterNumber
+from processing.core.parameters import ParameterRaster
+from processing.core.parameters import ParameterVector
+from processing.core.parameters import ParameterNumber
 
 
 class PSProjectionToolAlg:

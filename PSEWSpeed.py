@@ -30,11 +30,11 @@ import numpy
 import utils
 
 from processing.core.GeoAlgorithm import GeoAlgorithm
-from processing.outputs.OutputRaster import OutputRaster
+from processing.core.outputs import OutputRaster
 
-from processing.parameters.ParameterVector import ParameterVector
-from processing.parameters.ParameterNumber import ParameterNumber
-from processing.parameters.ParameterExtent import ParameterExtent
+from processing.core.parameters import ParameterVector
+from processing.core.parameters import ParameterNumber
+from processing.core.parameters import ParameterExtent
 
 
 class PSEWSpeedAlg:
