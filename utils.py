@@ -4,11 +4,7 @@ import sys, os
 import struct
 import random
 from math import sin, cos
-
 from osgeo import gdal, ogr
-from gdalconst import *
-
-
 import numpy
 
 

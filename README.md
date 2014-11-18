@@ -39,6 +39,11 @@ Install
 
   - install numpy and gdal python libraries.
 
+    - tested with:
+    
+        - python-numpy Version: 1:1.6.1-6ubuntu1
+        - python-gdal Version: 1.7.3-6ubuntu3
+
   - enable 'processing' plugin from the qgis interface
 
   - enable 'pstools' plugin from the qgis interface
