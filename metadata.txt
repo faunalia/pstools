@@ -23,7 +23,7 @@
 name=Processing PS Tools provider
 description=Expose PS Tools to Processing.
 
-version=0.2
+version=0.2.2
 qgisMinimumVersion=2.0
 
 category=Plugin
@@ -35,14 +35,15 @@ email=riccardo@reflab.com
 
 ; start of optional metadata
 
-changelog=
+changelog=0.2.2
+	Updated metadata
 
 ; tags are in comma separated value format, spaces are allowed
-tags=processing, permaclim
+tags=point scatter, permaclim
 
 homepage=http://www.faunalia.com/
-tracker=http://hub.qgis.org/projects/pstools
-repository=https://github.com/faunalia/ppstools
+tracker=https://github.com/faunalia/pstools
+repository=https://github.com/faunalia/pstools
 
 ; path to a icon within the plugin folder
 icon=logo.png
